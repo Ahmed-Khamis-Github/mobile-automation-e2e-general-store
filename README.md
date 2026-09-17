@@ -22,7 +22,6 @@ data-driven flows, reusable per-screen subflows and JavaScript business-rule ass
 
 ## Table of contents
 
-- [Why Maestro](#why-maestro)
 - [What is covered](#what-is-covered)
 - [Project structure](#project-structure)
 - [Prerequisites](#prerequisites)
@@ -35,20 +34,6 @@ data-driven flows, reusable per-screen subflows and JavaScript business-rule ass
 - [Roadmap](#roadmap)
 
 ---
-
-## Why Maestro
-
-| | Maestro | Appium (for comparison) |
-|---|---|---|
-| Test definition | Declarative YAML | Code (Java / Python / JS) |
-| Waiting & retries | Built into every command | Explicit waits written by hand |
-| Setup | Single CLI, no driver/server | Appium server + drivers + capabilities |
-| Reuse | `runFlow` subflows + `env` parameters | Page Object classes |
-| Best fit | Fast, readable user-journey suites | Large suites with heavy custom logic |
-
-This project deliberately uses Maestro's strengths — flakiness-resistant commands and
-readable flows — while borrowing the structure people expect from a mature Appium
-framework: one place for selectors per screen, external test data, and reusable steps.
 
 ## What is covered
 
