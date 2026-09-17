@@ -1,0 +1,54 @@
+# Subflow: the app hands off to a WebView to finish the purchase.
+# Wait for it, submit the query, verify results, then return to the app.
+#
+# Parameters (passed by the caller via runFlow -> env):
+#   SEARCH_QUERY
+#
+# NOTE: no `env:` defaults here on purpose - a subflow env block overrides the
+#       caller's values in Maestro (verified on 2.10.0).
+appId: com.androidsample.generalstore
+name: "Order - complete on the web page"
+---
+# Network-bound step: wait for the page's search form instead of sleeping
+- extendedWaitUntil:
+    visible:
+      id: "tsf"
+    timeout: 30000
+    label: "Purchase web page has loaded"
+
+- tapOn:
+    id: "tsf"
+    label: "Focus the web search box"
+
+- inputText:
+    text: ${SEARCH_QUERY}
+    label: "Type the search query"
+
+- pressKey: Enter
+
+- extendedWaitUntil:
+    visible:
+      text: ".*${SEARCH_QUERY}.*"
+    timeout: 30000
+    label: "Web results for the query are shown"
+
+- takeScreenshot:
+    path: "04_order_completed_web"
+    label: "Screenshot: purchase web page after submit"
+
+# Returning from the web page resets the app session
+- back
+
+- waitForAnimationToEnd
+
+- assertVisible:
+    id: "btnLetsShop"
+    label: "App returned to the landing form after the order"
+
+- assertNotVisible:
+    id: "counterText"
+    label: "Cart badge is cleared for the new session"
+
+- takeScreenshot:
+    path: "05_post_order_landing"
+    label: "Screenshot: landing screen after order"

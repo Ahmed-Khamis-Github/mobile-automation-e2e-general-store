@@ -1,0 +1,44 @@
+# Subflow: add ONE product to the cart from the Products screen
+#
+# Parameters (passed by the caller via runFlow -> env):
+#   PRODUCT         - exact product name as shown in the list
+#   EXPECTED_BADGE  - cart badge count expected after adding this product
+#
+# Side effect: pushes the product's price into output.cart.prices
+#
+# NOTE: no `env:` defaults here on purpose - a subflow env block overrides the
+#       caller's values in Maestro (verified on 2.10.0).
+appId: com.androidsample.generalstore
+name: "Products - add a product to the cart"
+---
+- scrollUntilVisible:
+    element:
+      text: ${PRODUCT}
+    timeout: 30000
+    speed: 40
+    label: "Scroll to the product"
+
+- copyTextFrom:
+    id: "productPrice"
+    below:
+      text: ${PRODUCT}
+    label: "Capture the product price"
+
+- evalScript: ${output.cart.prices.push(maestro.copiedText)}
+
+- tapOn:
+    text: "ADD TO CART"
+    below:
+      text: ${PRODUCT}
+    label: "Add the product to the cart"
+
+- assertVisible:
+    text: "ADDED TO CART"
+    below:
+      text: ${PRODUCT}
+    label: "Button switched to ADDED TO CART"
+
+- assertVisible:
+    id: "counterText"
+    text: ${EXPECTED_BADGE}
+    label: "Cart badge shows the expected count"

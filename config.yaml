@@ -1,0 +1,13 @@
+# Maestro workspace configuration
+# Only files matched by `flows` are treated as runnable tests.
+# Everything under subflows/ is a reusable building block and is never run on its own.
+#
+#   maestro test .                                   -> run every flow in flows/
+#   maestro test --include-tags smoke .              -> filter by tag
+#   maestro test -e DATASET=austria_female .         -> pick another dataset (see data/testdata.js)
+
+flows:
+  - "flows/**"
+
+executionOrder:
+  continueOnFailure: false

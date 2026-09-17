@@ -1,0 +1,16 @@
+# Subflow: launch the app from a clean state and verify the landing screen
+appId: com.androidsample.generalstore
+name: "Common - launch app clean"
+---
+- launchApp:
+    clearState: true
+    label: "Launch app with a fresh state"
+
+- assertVisible:
+    id: "toolbar_title"
+    text: "General Store"
+    label: "Landing screen title is shown"
+
+- assertVisible:
+    id: "btnLetsShop"
+    label: "Let's Shop button is rendered"

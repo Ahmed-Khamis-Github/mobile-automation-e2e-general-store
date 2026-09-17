@@ -1,0 +1,40 @@
+# Subflow: open the cart, verify every selected product is listed and the
+# total equals the sum of the captured prices (scripts/assert-cart-total.js)
+#
+# Reads:  output.data.products, output.cart.prices
+# Writes: output.cart.total, output.cart.expectedTotal
+appId: com.androidsample.generalstore
+name: "Cart - open and verify contents"
+---
+- tapOn:
+    id: "appbar_btn_cart"
+    label: "Open the cart"
+
+- waitForAnimationToEnd
+
+- assertVisible:
+    id: "toolbar_title"
+    text: "Cart"
+    label: "Cart screen is open"
+
+# Every product from the dataset must appear in the cart
+- evalScript: ${output.i = 0}
+- repeat:
+    while:
+      true: ${output.i < output.data.products.length}
+    commands:
+      - assertVisible:
+          id: "productName"
+          text: ${output.data.products[output.i].name}
+          label: "Product from the dataset is listed in the cart"
+      - evalScript: ${output.i = output.i + 1}
+
+- copyTextFrom:
+    id: "totalAmountLbl"
+    label: "Capture the cart total"
+
+- evalScript: ${output.cart.total = maestro.copiedText}
+
+- runScript:
+    file: ../../scripts/assert-cart-total.js
+    label: "Cart total equals the sum of all product prices"

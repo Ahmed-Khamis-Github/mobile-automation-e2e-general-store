@@ -1,0 +1,29 @@
+# Subflow: optional e-mail opt-in, then proceed to the purchase web page
+#
+# Parameters (passed by the caller via runFlow -> env):
+#   OPT_IN_EMAILS - "true" to tick the discount e-mails checkbox
+#
+# NOTE: no `env:` defaults here on purpose - a subflow env block overrides the
+#       caller's values in Maestro (verified on 2.10.0).
+appId: com.androidsample.generalstore
+name: "Cart - checkout"
+---
+- runFlow:
+    when:
+      true: ${OPT_IN_EMAILS == 'true'}
+    commands:
+      - tapOn:
+          text: "Send me e-mails on discounts related to selected products in future"
+          label: "Opt in to discount e-mails"
+      - assertVisible:
+          text: "Send me e-mails on discounts related to selected products in future"
+          checked: true
+          label: "Opt-in checkbox is checked"
+
+- takeScreenshot:
+    path: "03_cart_ready_for_checkout"
+    label: "Screenshot: cart ready for checkout"
+
+- tapOn:
+    id: "btnProceed"
+    label: "Proceed to complete the purchase"

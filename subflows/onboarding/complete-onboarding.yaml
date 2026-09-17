@@ -1,0 +1,87 @@
+# Subflow: fill the onboarding form (country / name / gender) and enter the store
+#
+# Parameters (passed by the caller via runFlow -> env):
+#   COUNTRY, USER_NAME, GENDER
+#
+# NOTE: do NOT add an `env:` block with defaults here. In Maestro a subflow's own
+#       env block overrides the values passed in by runFlow (verified on 2.10.0).
+appId: com.androidsample.generalstore
+name: "Onboarding - complete the shopping form"
+---
+# --- Country -----------------------------------------------------------------
+- tapOn:
+    id: "spinnerCountry"
+    label: "Open the country dropdown"
+
+# Slow scroll speed avoids skipping past the target in the long country list
+- scrollUntilVisible:
+    element:
+      text: ${COUNTRY}
+    direction: DOWN
+    timeout: 30000
+    speed: 35
+    centerElement: true
+    label: "Scroll the list until the target country is visible"
+
+- tapOn:
+    text: ${COUNTRY}
+    label: "Select the country"
+
+- assertVisible:
+    text: ${COUNTRY}
+    label: "Spinner now displays the selected country"
+
+# --- Name --------------------------------------------------------------------
+- tapOn:
+    id: "nameField"
+    label: "Focus the name field"
+
+- assertVisible:
+    id: "nameField"
+    focused: true
+    label: "Name field has focus"
+
+- inputText:
+    text: ${USER_NAME}
+    label: "Type the user name"
+
+- assertVisible:
+    id: "nameField"
+    text: ${USER_NAME}
+    label: "Name field contains the typed value"
+
+- hideKeyboard
+
+# --- Gender ------------------------------------------------------------------
+- tapOn:
+    text: ${GENDER}
+    label: "Choose gender"
+
+- assertVisible:
+    text: ${GENDER}
+    checked: true
+    label: "Gender radio button is checked"
+
+- takeScreenshot:
+    path: "01_onboarding_form_filled"
+    label: "Screenshot: onboarding form filled"
+
+# --- Submit ------------------------------------------------------------------
+- tapOn:
+    id: "btnLetsShop"
+    label: "Submit the form"
+
+- waitForAnimationToEnd
+
+- assertVisible:
+    id: "toolbar_title"
+    text: "Products"
+    label: "Products screen is open"
+
+- assertVisible:
+    id: "appbar_btn_cart"
+    label: "Cart icon is available in the toolbar"
+
+- assertNotVisible:
+    id: "counterText"
+    label: "Cart badge is hidden while the cart is empty"

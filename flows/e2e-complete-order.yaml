@@ -1,0 +1,81 @@
+# =============================================================================
+# E2E: Onboarding -> Add products -> Verify cart -> Checkout -> Complete order
+# =============================================================================
+# This is an ORCHESTRATOR: it only wires subflows together, in business order.
+# Selectors live in subflows/ (one per screen), data lives in data/testdata.js.
+#
+#   maestro test .                              # default dataset
+#   maestro test -e DATASET=austria_female .    # another dataset
+# =============================================================================
+appId: com.androidsample.generalstore
+name: "E2E - Onboarding to Completed Order"
+
+tags:
+  - e2e
+  - checkout
+  - regression
+
+# No `env:` block here on purpose: on Maestro 2.10 a flow's own env block
+# overrides `-e KEY=VALUE` from the CLI. DATASET falls back to "default"
+# inside data/testdata.js when it is not provided.
+
+# Runs regardless of pass/fail so the video is always finalised
+onFlowComplete:
+  - stopRecording
+
+---
+- startRecording:
+    path: "e2e_onboarding_to_order"
+    label: "Record the full session"
+
+# Load the dataset into output.data (see data/testdata.js)
+- runScript:
+    file: ../data/testdata.js
+    label: "Load the test data set"
+
+# 1. Fresh start
+- runFlow:
+    file: ../subflows/common/launch-app-clean.yaml
+
+# 2. Onboarding ("login") form
+- runFlow:
+    file: ../subflows/onboarding/complete-onboarding.yaml
+    env:
+      COUNTRY: ${output.data.user.country}
+      USER_NAME: ${output.data.user.name}
+      GENDER: ${output.data.user.gender}
+
+# 3. Add every product from the dataset
+- evalScript: ${output.i = 0}
+- repeat:
+    while:
+      true: ${output.i < output.data.products.length}
+    commands:
+      - runFlow:
+          file: ../subflows/products/add-product-to-cart.yaml
+          env:
+            PRODUCT: ${output.data.products[output.i].name}
+            EXPECTED_BADGE: ${output.i + 1}
+      - evalScript: ${output.i = output.i + 1}
+
+- takeScreenshot:
+    path: "02_products_added"
+    label: "Screenshot: all products added"
+
+# 4. Cart
+- runFlow:
+    file: ../subflows/cart/open-and-verify-cart.yaml
+
+- runFlow:
+    file: ../subflows/cart/review-terms.yaml
+
+- runFlow:
+    file: ../subflows/cart/checkout.yaml
+    env:
+      OPT_IN_EMAILS: ${output.data.optInToEmails}
+
+# 5. Complete the order on the web page and confirm the app reset
+- runFlow:
+    file: ../subflows/order/complete-order-on-web.yaml
+    env:
+      SEARCH_QUERY: ${output.data.searchQuery}

@@ -1,0 +1,19 @@
+# Subflow: open the Terms Of Conditions dialog (long press) and close it
+appId: com.androidsample.generalstore
+name: "Cart - review terms of conditions"
+---
+- longPressOn:
+    id: "termsButton"
+    label: "Long-press to open Terms Of Conditions"
+
+- assertVisible:
+    text: "Terms Of Conditions"
+    label: "Terms dialog is displayed"
+
+- tapOn:
+    text: "CLOSE"
+    label: "Close the terms dialog"
+
+- assertNotVisible:
+    text: "Terms Of Conditions"
+    label: "Terms dialog is dismissed"
